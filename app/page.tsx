@@ -43,19 +43,11 @@ export default function Home() {
         throw new Error('Server responded with an error')
       }
 
-      if (!response.body) {
-        throw new Error('Response body is null')
-      }
+      const responseBody = await response.json()
 
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder('utf-8')
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        const chunk = decoder.decode(value)
-        setOutput(prev => prev + chunk)
-      }
+      // 处理 JSON 字符串，去除最外层双引号，并进行换行和 ANSI 颜色处理
+      const parsedOutput = responseBody.replace(/^"|"$/g, '') // 去除开头和结尾的双引号
+      setOutput(parsedOutput)
     } catch (error) {
       console.error('Error:', error)
       setError('An error occurred while processing your request.')
@@ -63,6 +55,9 @@ export default function Home() {
       setIsLoading(false)
     }
   }
+
+  // 处理输出中的换行符和 ANSI 转义序列
+  const processedOutput = ansiToHtml.toHtml(output.replace(/\n/g, '<br />'))
 
   return (
     <div className="container mx-auto p-4 space-y-6">
@@ -108,7 +103,7 @@ export default function Home() {
           <Label>Output</Label>
           <div 
             className="bg-gray-100 p-4 rounded-md whitespace-pre-wrap overflow-auto max-h-96"
-            dangerouslySetInnerHTML={{ __html: ansiToHtml.toHtml(output) }}
+            dangerouslySetInnerHTML={{ __html: processedOutput }}
           />
         </div>
       )}
