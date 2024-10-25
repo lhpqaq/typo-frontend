@@ -30,7 +30,7 @@ export default function Home() {
         throw new Error('API_URL is not defined')
       }
 
-      const response = await fetch(`${API_URL}/your/endpoint`, {
+      const response = await fetch(`${API_URL}/git-typo`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
